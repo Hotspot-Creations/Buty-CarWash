@@ -1,9 +1,20 @@
 Configuration = {
-    FrameWork = "esx", -- esx | qbcore
-    
-    CoreFolderName = "", 
 
-    Prices = {1000, 2000, 3500},
+    -- auto | esx | qbcore | qbox
+    FrameWork = "auto",
+
+    -- Leave blank to use the default framework resource name
+    -- ESX: es_extended
+    -- QBCore: qb-core
+    -- QBox: qbx_core
+    CoreFolderName = "",
+
+    -- Basic / Standard / Premium
+    Prices = {
+        1000,
+        2000,
+        3500
+    }
 
 }
 
