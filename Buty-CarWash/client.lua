@@ -457,11 +457,14 @@ SendNotification = function(message)
 end
 
 Progress = function(time, text)
-    exports["Buty-Progress"]:on({
-        time = time, 
-        text = text, 
-        color = "linear-gradient(20.5deg, #00E4FF 9.83%, rgba(172, 65, 222, 0) 93.95%)",
-        color2 = "#00C1FF",
-    })
+    exports['Buty-Progress']:ShowProgress(
+        time,
+        text,
+        nil,
+        {
+            background = 'linear-gradient(20.5deg, #00E4FF 9.83%, rgba(172, 65, 222, 0) 93.95%)',
+            color = '#00C1FF'
+        }
+    )
 end
 
