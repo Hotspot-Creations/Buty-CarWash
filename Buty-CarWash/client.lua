@@ -1,12 +1,48 @@
-if Configuration.FrameWork == 'esx' then 
-    if Configuration.CoreFolderName == "" then Configuration.CoreFolderName = 'es_extended' end
-    ESX = exports[Configuration.CoreFolderName]:getSharedObject()
-    trigger = ESX.TriggerServerCallback
-elseif Configuration.FrameWork == 'qbcore' then 
-    if Configuration.CoreFolderName == "" then Configuration.CoreFolderName = 'qb-core' end
-    QBCore = exports[Configuration.CoreFolderName]:GetCoreObject()
-    trigger = QBCore.Functions.TriggerCallback
+local Framework = (Configuration.FrameWork or 'auto'):lower()
+local Core = nil
+
+local function detectFramework()
+    if Framework ~= 'auto' then return end
+
+    if GetResourceState('qbx_core') == 'started' then
+        Framework = 'qbox'
+    elseif GetResourceState('qb-core') == 'started' then
+        Framework = 'qbcore'
+    elseif GetResourceState('es_extended') == 'started' then
+        Framework = 'esx'
+    end
 end
+
+local function initializeFramework()
+    detectFramework()
+
+    if Framework == 'esx' then
+        local resourceName = Configuration.CoreFolderName ~= '' and Configuration.CoreFolderName or 'es_extended'
+        Core = exports[resourceName]:getSharedObject()
+    elseif Framework == 'qbcore' then
+        local resourceName = Configuration.CoreFolderName ~= '' and Configuration.CoreFolderName or 'qb-core'
+        Core = exports[resourceName]:GetCoreObject()
+    elseif Framework == 'qbox' then
+        local resourceName = Configuration.CoreFolderName ~= '' and Configuration.CoreFolderName or 'qbx_core'
+        Core = exports[resourceName]
+    else
+        print('^1[Buty-Carwash] No supported framework found on the client.^0')
+    end
+end
+
+local function triggerMoneyCallback(callback, serviceType, price)
+    if Framework == 'esx' and Core then
+        Core.TriggerServerCallback('buty:getMoney', callback, serviceType, price)
+    elseif Framework == 'qbcore' and Core then
+        Core.Functions.TriggerCallback('buty:getMoney', callback, serviceType, price)
+    elseif Framework == 'qbox' and Core then
+        lib.callback('buty:getMoney', false, callback, serviceType, price)
+    else
+        callback(false)
+    end
+end
+
+initializeFramework()
 
 local Type = nil
 local fov_max = 90.0
@@ -111,7 +147,7 @@ RegisterNUICallback("wash", function(data)
     local price = Configuration.Prices[tonumber(Type)]
     local pedcoord = GetEntityCoords(ped)
     local vehcoord = GetEntityCoords(vehicle)
-    trigger('buty:getMoney', function (money)
+    triggerMoneyCallback(function (money)
         if money then
             SendNotification("You have paid correctly, wait for them to clean your vehicle.")
             if Type == "1" then

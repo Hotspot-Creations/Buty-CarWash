@@ -23,6 +23,12 @@
 body {
   overflow: hidden;
 }
+#app {
+  display: none;
+}
+#app.is-visible {
+  display: block;
+}
 body > .bg {
   position: absolute;
   left: 0;

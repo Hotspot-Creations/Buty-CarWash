@@ -17,7 +17,7 @@
 </head>
 <body>
 
-    <div id="app">
+    <div id="app" aria-hidden="true">
         <div class="overlay"></div>
 
         <div class="container">
@@ -40,7 +40,7 @@
                         </button>
                     </div>
 
-                    <div class="button" @click="select">
+                    <div class="button" id="buy-service" role="button" tabindex="0">
                         BUY <span>SERVICE</span>
 
                         <img src="./img/vector1.png" alt="" class="vector1">

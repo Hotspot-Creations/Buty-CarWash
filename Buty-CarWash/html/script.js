@@ -1,53 +1,63 @@
-const app = new Vue({
-    el: '#app',
+'use strict';
 
-    data: {
-        display: false
-    },
+const app = document.getElementById('app');
+const buyServiceButton = document.getElementById('buy-service');
 
-    methods: {
-        select() {
-            const activePackage = document.querySelector('.package.active');
+function setDisplay(visible) {
+    const shouldShow = visible === true;
 
-            if (!activePackage) return;
+    app.classList.toggle('is-visible', shouldShow);
+    app.setAttribute('aria-hidden', String(!shouldShow));
+}
 
-            const packageValue = activePackage.getAttribute('data-value');
+function closeUi() {
+    setDisplay(false);
 
-            $.post(
-                `https://${GetParentResourceName()}/wash`,
-                JSON.stringify({
-                    type: packageValue
-                })
-            );
+    $.post(
+        `https://${GetParentResourceName()}/exit`,
+        JSON.stringify({})
+    );
+}
 
-            this.display = false;
+function select() {
+    const activePackage = document.querySelector('.package.active');
 
-            $.post(
-                `https://${GetParentResourceName()}/exit`,
-                JSON.stringify({})
-            );
-        }
-    }
-});
+    if (!activePackage) return;
+
+    const packageValue = activePackage.getAttribute('data-value');
+
+    $.post(
+        `https://${GetParentResourceName()}/wash`,
+        JSON.stringify({
+            type: packageValue
+        })
+    );
+
+    closeUi();
+}
 
 window.addEventListener('message', function (event) {
     const data = event.data || {};
 
     if (data.type === 'ui') {
-        app.display = data.status === true;
+        setDisplay(data.status);
     }
 });
 
-document.onkeyup = function (data) {
-    if (data.which === 27) {
-        app.display = false;
-
-        $.post(
-            `https://${GetParentResourceName()}/exit`,
-            JSON.stringify({})
-        );
+document.addEventListener('keyup', function (event) {
+    if (event.key === 'Escape' && app.classList.contains('is-visible')) {
+        closeUi();
     }
-};
+});
+
+buyServiceButton.addEventListener('click', select);
+
+buyServiceButton.addEventListener('keyup', function (event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        select();
+    }
+});
 
 const slider = document.querySelector('.slider-inner');
 const description = document.querySelector('.description');
